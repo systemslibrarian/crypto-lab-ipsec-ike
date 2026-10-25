@@ -8,6 +8,13 @@ updates:
       time: "04:41"
       timezone: America/New_York
     open-pull-requests-limit: 5
+    groups:
+      npm-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -16,3 +23,7 @@ updates:
       time: "04:47"
       timezone: America/New_York
     open-pull-requests-limit: 5
+    groups:
+      github-actions:
+        patterns:
+          - "*"

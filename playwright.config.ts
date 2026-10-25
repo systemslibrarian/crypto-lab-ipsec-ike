@@ -1,6 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const PORT = 4232;
+const PORT = 4748;
 const BASE = "/crypto-lab-ipsec-ike/";
 
 export default defineConfig({
