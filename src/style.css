@@ -296,8 +296,13 @@ button:disabled {
 
 #results {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
   margin-top: 1rem;
+}
+
+#results > * {
+  min-width: 0;
 }
 
 #results[aria-busy="true"] {

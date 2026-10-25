@@ -16,14 +16,27 @@ function collectPageErrors(page: Page): string[] {
 async function scan(page: Page, label: string): Promise<void> {
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   expect(results.violations, `${label}: axe violations`).toEqual([]);
-  const geometry = await page.evaluate(() => ({
-    body: document.body.scrollWidth,
-    document: document.documentElement.scrollWidth,
-    viewport: document.documentElement.clientWidth,
-  }));
+  const geometry = await page.evaluate(() => {
+    const viewport = document.documentElement.clientWidth;
+    const offenders = [...document.querySelectorAll<HTMLElement>("body *")]
+      .filter((element) => element.getBoundingClientRect().right > viewport + 1)
+      .slice(0, 8)
+      .map((element) => ({
+        tag: element.tagName.toLowerCase(),
+        id: element.id,
+        className: element.className,
+        right: Math.round(element.getBoundingClientRect().right),
+      }));
+    return {
+      body: document.body.scrollWidth,
+      document: document.documentElement.scrollWidth,
+      viewport,
+      offenders,
+    };
+  });
   expect(
     Math.max(geometry.body, geometry.document),
-    `${label}: page-level horizontal overflow`,
+    `${label}: page-level horizontal overflow; ${JSON.stringify(geometry.offenders)}`,
   ).toBeLessThanOrEqual(geometry.viewport + 1);
 }
 

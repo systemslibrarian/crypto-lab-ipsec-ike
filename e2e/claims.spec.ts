@@ -14,7 +14,13 @@ async function loadFixedEvidence(page: Page): Promise<void> {
 }
 
 function normalizedHex(value: string): string {
-  return value.trim().toLowerCase().replace(/^0x/, "");
+  const normalized = value
+    .trim()
+    .toLowerCase()
+    .replace(/^0x/, "")
+    .replace(/[\s|]/g, "");
+  expect(normalized).toMatch(/^[0-9a-f]+$/);
+  return normalized;
 }
 
 test("the fixed run connects policy, four IKE messages, and two simplex Child SAs", async ({
