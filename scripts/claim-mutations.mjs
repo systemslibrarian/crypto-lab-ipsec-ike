@@ -210,6 +210,44 @@ const mutations = [
     replacement: "if (false && !coherent) {",
     owner: unit("src/protocol/esp.test.ts", "rejects invalid window state"),
   },
+  {
+    id: "EK03-M16",
+    claim:
+      "IKE authenticates its full header plus SK header, not ESP's eight-octet AAD",
+    file: "src/protocol/ike.ts",
+    anchor: "return message.slice(0, IKE_HEADER_BYTES + 4);",
+    replacement: "return message.slice(0, 8);",
+    owner: unit(
+      "src/protocol/ike.test.ts",
+      "authenticates the IKE header plus SK header as AAD",
+    ),
+  },
+  {
+    id: "EK03-M17",
+    claim: "ESP authentication succeeds before the replay window is committed",
+    file: "src/protocol/esp.ts",
+    anchor: `windowAfter: { ...windowBefore },
+      sad: unchanged,
+    };
+  }
+
+  // RFC 4303 advances anti-replay state after integrity succeeds.`,
+    replacement: `windowAfter: commitReplay(windowBefore, sequence),
+      sad: withReplayWindow(
+        unchanged,
+        spi,
+        sa,
+        commitReplay(windowBefore, sequence),
+      ),
+    };
+  }
+
+  // RFC 4303 advances anti-replay state after integrity succeeds.`,
+    owner: unit(
+      "src/protocol/esp.test.ts",
+      "does not advance the window for a modified packet ahead of it",
+    ),
+  },
 ];
 
 function run(program, args) {

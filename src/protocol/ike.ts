@@ -437,14 +437,15 @@ export async function sealIkeEncryptedMessage(options: {
     Uint8Array.of(inner.firstPayload, 0),
     u16be(skPayloadLength),
   );
-  const aad = concatBytes(header, skHeader);
+  const wirePrefix = concatBytes(header, skHeader);
+  const aad = ikeAad(wirePrefix);
   const key = options.keyWithSalt.slice(0, AES_GCM_KEY_BYTES);
   const salt = options.keyWithSalt.slice(AES_GCM_KEY_BYTES);
   const nonce = concatBytes(salt, options.explicitIv);
   const sealed = await aesGcmSeal(key, nonce, plaintext, aad);
   return {
     message: concatBytes(
-      aad,
+      wirePrefix,
       options.explicitIv,
       sealed.ciphertext,
       sealed.tag,
@@ -486,7 +487,7 @@ export async function openIkeEncryptedMessage(
   if (skPayloadLength !== message.length - IKE_HEADER_BYTES) {
     throw new Error("SK payload length does not match the IKE message.");
   }
-  const aad = message.slice(0, IKE_HEADER_BYTES + 4);
+  const aad = ikeAad(message);
   const explicitIv = message.slice(IKE_HEADER_BYTES + 4, IKE_HEADER_BYTES + 12);
   const ciphertext = message.slice(IKE_HEADER_BYTES + 12, -16);
   const tag = message.slice(-16);
@@ -518,6 +519,11 @@ export async function openIkeEncryptedMessage(
     padLength,
     payloads: decodePayloadChain(innerBytes, firstInnerPayload),
   };
+}
+
+/** RFC 7296 authenticates the complete IKE header and generic SK header. */
+function ikeAad(message: Uint8Array): Uint8Array {
+  return message.slice(0, IKE_HEADER_BYTES + 4);
 }
 
 export function negotiateMode(options: {

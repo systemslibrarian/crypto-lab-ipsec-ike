@@ -370,10 +370,7 @@ export async function receiveEspPacket(
   // authenticated but malformed trailer is not released, but its sequence is
   // consumed; only an unauthenticated packet leaves the window untouched.
   const windowAfter = commitReplay(windowBefore, sequence);
-  const updatedSa = cloneSa(sa);
-  updatedSa.replayWindow = windowAfter;
-  const updatedSad = cloneSad(unchanged);
-  updatedSad.set(spi, updatedSa);
+  const updatedSad = withReplayWindow(unchanged, spi, sa, windowAfter);
 
   if (!bytesEqual(explicitIv, u64be(BigInt(sequence)))) {
     return {
@@ -449,6 +446,19 @@ export async function receiveEspPacket(
       sad: updatedSad,
     };
   }
+}
+
+function withReplayWindow(
+  sad: ReadonlyMap<number, EspSa>,
+  spi: number,
+  sa: EspSa,
+  replayWindow: ReplayWindow,
+): Map<number, EspSa> {
+  const updatedSa = cloneSa(sa);
+  updatedSa.replayWindow = { ...replayWindow };
+  const updatedSad = cloneSad(sad);
+  updatedSad.set(spi, updatedSa);
+  return updatedSad;
 }
 
 export function installSa(
