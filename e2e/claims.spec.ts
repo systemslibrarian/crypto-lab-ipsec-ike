@@ -87,7 +87,7 @@ test("the rendered ESP fields form one AES-GCM packet and decrypt to the rendere
     .first()
     .locator("td")
     .allTextContents();
-  const [, receiverSpi, key, salt] = outboundSaCells.map(normalizedHex);
+  const [receiverSpi, key, salt] = outboundSaCells.slice(1).map(normalizedHex);
   expect(spiText).toBe(receiverSpi);
   expect(aad).toBe(
     `${spiText}${Number(sequenceText).toString(16).padStart(8, "0")}`,

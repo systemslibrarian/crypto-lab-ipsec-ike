@@ -179,7 +179,7 @@ function renderRun(run: LabRun): string {
       ${sectionNumber("01", "Policy before cryptography")}
       <h2 id="policy-title">The SPD decides; the route does something else</h2>
       <p>The ordered Security Policy Database returns its first match. Route lookup is shown beside it, but never changes the security disposition.</p>
-      <div class="table-wrap"><table data-testid="spd-table"><thead><tr><th>Concrete flow</th><th>First match</th><th>SPD result</th><th>Separate route</th></tr></thead><tbody>
+      <div class="table-wrap" role="region" aria-label="Security policy decisions" tabindex="0"><table data-testid="spd-table"><thead><tr><th>Concrete flow</th><th>First match</th><th>SPD result</th><th>Separate route</th></tr></thead><tbody>
         ${run.policy.map((item) => `<tr><td><strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.flow)}</small></td><td>${escapeHtml(item.rule)}</td><td><span class="pill ${item.action.toLowerCase()}">${item.action}</span></td><td>${escapeHtml(item.route)}</td></tr>`).join("")}
       </tbody></table></div>
       <aside class="callout"><strong>Installed selector subset</strong><code data-testid="narrowed-selector">${escapeHtml(formatSelector(handshake))}</code><p>The request carries the broader offer; the response carries this policy intersection.</p></aside>
@@ -206,7 +206,7 @@ function renderRun(run: LabRun): string {
     <section class="lesson-section" aria-labelledby="child-title">
       ${sectionNumber("03", "Two simplex SAs")}
       <h2 id="child-title">The proposal SPI names the receiver’s inbound SA</h2>
-      <div class="table-wrap"><table data-testid="child-sa-table"><thead><tr><th>Protected direction</th><th>Receiver-chosen SPI</th><th>AES-128 key</th><th>Salt</th></tr></thead><tbody>
+      <div class="table-wrap" role="region" aria-label="Installed Child security associations" tabindex="0"><table data-testid="child-sa-table"><thead><tr><th>Protected direction</th><th>Receiver-chosen SPI</th><th>AES-128 key</th><th>Salt</th></tr></thead><tbody>
         <tr><td>Original initiator → responder</td><td><code>${run.initialResponderInboundSpi}</code></td><td><code>${bytesToHex(handshake.childKeys.initiatorToResponder.slice(0, 16))}</code></td><td><code>${bytesToHex(handshake.childKeys.initiatorToResponder.slice(16))}</code></td></tr>
         <tr><td>Original responder → initiator</td><td><code>${run.initialInitiatorInboundSpi}</code></td><td><code>${bytesToHex(handshake.childKeys.responderToInitiator.slice(0, 16))}</code></td><td><code>${bytesToHex(handshake.childKeys.responderToInitiator.slice(16))}</code></td></tr>
       </tbody></table></div>
@@ -265,7 +265,7 @@ function renderReplay(run: LabRun): string {
     ${sectionNumber("06", "Receiver state machine")}
     <h2 id="replay-title">Lookup, precheck, authenticate, then commit</h2>
     <p>The packets continue the one outbound SA counter after the packet above; controlled receiver views begin with stated replay-window state. An invalid tag must not move the window. An authenticated sequence is committed before this profile checks its trailer.</p>
-    <div class="table-wrap"><table data-testid="replay-table"><thead><tr><th>Executed case</th><th>Verdict / stage</th><th>Highest before → after</th><th>Why</th></tr></thead><tbody>
+    <div class="table-wrap" role="region" aria-label="Anti-replay receiver decisions" tabindex="0"><table data-testid="replay-table"><thead><tr><th>Executed case</th><th>Verdict / stage</th><th>Highest before → after</th><th>Why</th></tr></thead><tbody>
       ${run.replay.map((item) => `<tr><td>${escapeHtml(item.label)}</td><td><span class="pill ${item.accepted ? "protect" : "discard"}">${item.accepted ? "ACCEPT" : escapeHtml(item.stage)}</span></td><td>${item.before ?? "—"} → ${item.after ?? "—"}</td><td>${escapeHtml(item.explanation)}</td></tr>`).join("")}
     </tbody></table></div>
   </section>`;
