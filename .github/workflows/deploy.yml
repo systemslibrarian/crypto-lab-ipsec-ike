@@ -50,7 +50,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Install the pinned Playwright Chromium build
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
       - name: Rendered cryptographic claims, interaction, axe, and narrow reflow
         run: npm run test:e2e
       - name: Upload browser failure evidence
