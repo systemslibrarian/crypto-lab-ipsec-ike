@@ -1,4 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
+import { auditControlNames, formatControlNameFailures } from "./control-names";
 import { expect, test, type Page } from "@playwright/test";
 
 const WCAG_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
@@ -16,6 +17,11 @@ function collectPageErrors(page: Page): string[] {
 async function scan(page: Page, label: string): Promise<void> {
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   expect(results.violations, `${label}: axe violations`).toEqual([]);
+
+  // axe's `label` rule accepts a bare `placeholder` as an accessible name, so a
+  // deleted label can leave this gate green. See `control-names.ts`.
+  const unnamed = formatControlNameFailures(await auditControlNames(page));
+  expect(unnamed, `${label}: form controls named only by placeholder/title`).toEqual([]);
   const geometry = await page.evaluate(() => {
     const viewport = document.documentElement.clientWidth;
     const offenders = [...document.querySelectorAll<HTMLElement>("body *")]
