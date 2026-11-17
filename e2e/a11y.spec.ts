@@ -21,7 +21,10 @@ async function scan(page: Page, label: string): Promise<void> {
   // axe's `label` rule accepts a bare `placeholder` as an accessible name, so a
   // deleted label can leave this gate green. See `control-names.ts`.
   const unnamed = formatControlNameFailures(await auditControlNames(page));
-  expect(unnamed, `${label}: form controls named only by placeholder/title`).toEqual([]);
+  expect(
+    unnamed,
+    `${label}: form controls named only by placeholder/title`,
+  ).toEqual([]);
   const geometry = await page.evaluate(() => {
     const viewport = document.documentElement.clientWidth;
     const offenders = [...document.querySelectorAll<HTMLElement>("body *")]
