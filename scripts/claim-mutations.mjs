@@ -276,10 +276,35 @@ function hash(bytes) {
 }
 
 const files = [...new Set(mutations.map(({ file }) => file))];
-const dirty = run("git", ["diff", "--exit-code", "HEAD", "--", ...files]);
-if (dirty.status !== 0) {
+
+/*
+ * The whole tree, not just the files this gate mutates.
+ *
+ * This check was scoped to `files` and so answered a narrower question than
+ * the one it was asked: "are my mutation targets committed?" rather than "is
+ * this a clean commit?", which is what the docblock above promises and what
+ * the other labs' harnesses enforce. Measured 2026-11-17: a two-line edit to
+ * package.json and package-lock.json passed it untouched, so the gate ran and
+ * reported a baseline over a tree that was not the committed one. Widening it
+ * also makes the gate ORDER uniform across the fleet -- commit, then mutate --
+ * instead of per-lab.
+ *
+ * Untracked files count: a file nobody has added is read by a build exactly
+ * like a tracked one. Ignored paths never reach porcelain output, so this
+ * gate's own test-results directory cannot trip it.
+ */
+const dirtyTree = run("git", [
+  "status",
+  "--porcelain=v1",
+  "--untracked-files=all",
+]);
+if (dirtyTree.status !== 0) {
+  throw new Error(`could not read the working tree.\n${output(dirtyTree)}`);
+}
+if (dirtyTree.stdout.trim() !== "") {
   throw new Error(
-    `Commit the mutation source baseline before running this gate.\n${output(dirty)}`,
+    `Commit the mutation source baseline before running this gate.\n` +
+      `working tree is not clean: ${dirtyTree.stdout.trim()}`,
   );
 }
 for (const mutation of mutations) {
