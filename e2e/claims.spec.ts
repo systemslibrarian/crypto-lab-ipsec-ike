@@ -149,6 +149,12 @@ test("the receiver table exposes precheck, authentication, and SAD failures with
     ["unknown SPI 0xdeadbeef", "sad-lookup", "— → —"],
   ]);
   await expect(page.getByTestId("rekey-assertion")).toContainText("PASS");
+  await expect(page.getByTestId("rekey-assertion")).toContainText(
+    "outbound ESP packet used sequence 1",
+  );
+  await expect(page.getByTestId("rekey-assertion")).toContainText(
+    "receiver replay window started at 0",
+  );
   await expect(
     page.locator(".fact").filter({ hasText: "Old key with the new SPI" }),
   ).toContainText("Same bytes open in the explanatory old-key view: yes");

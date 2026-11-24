@@ -120,6 +120,7 @@ async function execute(deterministicEvidence: boolean): Promise<void> {
   }
   const generation = ++runGeneration;
   const options = readOptions(deterministicEvidence);
+  results.replaceChildren();
   setBusy(true);
   status.textContent = deterministicEvidence
     ? "Computing the explicit deterministic evidence run…"
@@ -297,7 +298,7 @@ function renderRekey(rekey: NonNullable<LabRun["rekey"]>): string {
       ${fact("Protected Delete request / reply", `${rekey.deleteRequestSpi} / ${rekey.deleteResponseSpi}`, "INFORMATIONAL exchange 37 names each peer’s old inbound SPI")}
       ${fact("Packet after old-SA retirement", rekey.retiredOldStage, "Retirement occurs after the protected Delete exchange")}
     </div>
-    <p class="assertion ${passes ? "pass" : "fail"}" data-testid="rekey-assertion">${verdict(passes)}: old/new overlap worked, wrong-generation keying failed, retirement stopped the old SPI, and new counters/windows began at zero/one.</p>
+    <p class="assertion ${passes ? "pass" : "fail"}" data-testid="rekey-assertion">${verdict(passes)}: ${passes ? "The first new outbound ESP packet used sequence 1. The new receiver replay window started at 0. The overlap, key separation, and retirement checks passed." : "The displayed rekey checks did not all pass."}</p>
   </section>`;
 }
 
