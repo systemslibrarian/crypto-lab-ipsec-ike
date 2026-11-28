@@ -4,7 +4,7 @@
 
 ## What It Is
 
-This lab is a bounded, executable IKEv2 and ESP packet-flow lesson. It applies an ordered Security Policy Database, performs a real four-message PSK IKEv2 setup with X25519, derives two unidirectional Child-SA key streams, and protects actual IPv4 bytes with AES-GCM-16/128. The receiver performs SAD lookup, a non-mutating 64-packet replay precheck, authentication, replay-state commit, trailer validation, packet reconstruction, and checksum verification in that order. Separate cases execute transport negotiation, tunnel fallback, protected Child-SA deletion, valid reordering, replay, too-old and invalid-tag handling, and fresh-state Child-SA rekeying. It is deliberately not an interoperable VPN daemon or production credential store.
+This lab is a bounded, executable IKEv2 and ESP packet-flow lesson. It applies an ordered list of outbound policy rules, constructs a four-message PSK IKEv2 transcript with X25519, derives two unidirectional Child-SA key streams, and protects actual IPv4 bytes with AES-GCM-16/128. The receiver performs SAD lookup, a non-mutating 64-packet replay precheck, authentication, replay-state commit, trailer validation, packet reconstruction, and checksum verification in that order. Separate cases execute transport negotiation, tunnel fallback, protected Child-SA deletion, valid reordering, replay, too-old and invalid-tag handling, and fresh-state Child-SA rekeying. It is deliberately not an interoperable VPN daemon or production credential store.
 
 ## When to Use It
 
@@ -12,6 +12,8 @@ This lab is a bounded, executable IKEv2 and ESP packet-flow lesson. It applies a
 - Use it to inspect IKEv2 and ESP bytes, keys, nonces, AAD and state transitions, because every displayed outcome is derived from the current browser run.
 - Use it for testing replay, mode-fallback and Child-SA rekey reasoning, because the negative cases exercise the same packet receiver and state as the honest path.
 - Do not use it to protect real traffic or select deployment algorithms, because it is a demo app and does not provide hardened operational controls.
+
+The same in-memory run constructs both peers and all four messages for one fixed algorithm suite. The hashes identify the encoded transcript. Identity and AUTH verification checks the identity payload and the PSK proof. There is no independent receiver for proposal selection or for the Child SA and traffic-selector payloads. The separate ESP receiver does process encoded packets. [IKEv2 exchange and authentication](https://www.rfc-editor.org/rfc/rfc7296.html#section-1.2).
 
 ## Declared teaching profile
 

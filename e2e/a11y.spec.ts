@@ -81,7 +81,7 @@ for (const viewport of [
     await page.locator("#mode").selectOption("transport");
     await page.locator("#echo").uncheck();
     await page.locator("#fallback").uncheck();
-    await page.getByRole("button", { name: "Run fresh negotiation" }).click();
+    await page.getByRole("button", { name: "Run fresh profile" }).click();
     await expect(page.getByTestId("deleted-child")).toBeVisible();
     await scan(page, `${viewport.name} protected Delete`);
     expect(errors).toEqual([]);

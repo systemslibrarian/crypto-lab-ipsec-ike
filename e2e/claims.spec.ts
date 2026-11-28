@@ -172,7 +172,7 @@ test("transport echo, tunnel fallback, and policy refusal produce distinct curre
   await expect(page.locator("#echo")).toBeEnabled();
   await expect(page.locator("#fallback")).toBeEnabled();
 
-  await page.getByRole("button", { name: "Run fresh negotiation" }).click();
+  await page.getByRole("button", { name: "Run fresh profile" }).click();
   await expect(page.locator("#status")).toContainText("completed");
   await expect(page.getByTestId("mode-ledger")).toContainText("transport");
   await expect(page.getByTestId("protected-bytes")).toHaveText(
@@ -180,7 +180,7 @@ test("transport echo, tunnel fallback, and policy refusal produce distinct curre
   );
 
   await page.locator("#echo").uncheck();
-  await page.getByRole("button", { name: "Run fresh negotiation" }).click();
+  await page.getByRole("button", { name: "Run fresh profile" }).click();
   await expect(page.locator("#status")).toContainText("completed");
   await expect(
     page
@@ -192,7 +192,7 @@ test("transport echo, tunnel fallback, and policy refusal produce distinct curre
   await expect(page.getByTestId("packet-strip")).toBeVisible();
 
   await page.locator("#fallback").uncheck();
-  await page.getByRole("button", { name: "Run fresh negotiation" }).click();
+  await page.getByRole("button", { name: "Run fresh profile" }).click();
   await expect(page.locator("#status")).toContainText("completed");
   await expect(page.getByTestId("deleted-child")).toContainText(
     "PASS: both Child-SA directions were retired",
@@ -212,7 +212,7 @@ test("a fresh rerun retires every prior result and publishes a new run token", a
     .getByTestId("run-banner")
     .locator("code")
     .innerText();
-  await page.getByRole("button", { name: "Run fresh negotiation" }).click();
+  await page.getByRole("button", { name: "Run fresh profile" }).click();
   await expect(page.locator("#status")).toContainText("fresh learner run");
   const freshToken = await page
     .getByTestId("run-banner")

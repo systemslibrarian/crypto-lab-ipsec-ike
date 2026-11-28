@@ -24,7 +24,7 @@ root.innerHTML = `
     <div class="hero-copy">
       <p class="eyebrow">Executable protocol notebook · E-K-03</p>
       <h1>From IKE policy to an authenticated ESP packet</h1>
-      <p class="lede">Build one bounded IKEv2 exchange byte by byte, derive its two simplex Child SAs, and then make the receiver decide what to accept. Every verdict below comes from the current run.</p>
+      <p class="lede">Construct a four-message IKEv2 transcript for one fixed cryptographic profile. Derive keys for two one-way Child SAs, then inspect what the ESP receiver accepts. Every verdict below comes from the current run.</p>
       <div class="profile-strip" aria-label="Bounded cryptographic profile">
         <span>X25519 / method 31</span><span>HMAC-SHA2-256 PRF</span><span>AES-GCM-16 / 128</span><span>64-packet replay window</span>
       </div>
@@ -35,8 +35,8 @@ root.innerHTML = `
     <section class="workbench" aria-labelledby="workbench-title">
       <div>
         <p class="section-kicker">Run controls</p>
-        <h2 id="workbench-title">Negotiate, protect, challenge</h2>
-        <p>Fresh runs generate new X25519 private scalars, nonces, SPIs and a binary teaching PSK. The fixed button is an explicit evidence seam for published and project-owned vectors.</p>
+        <h2 id="workbench-title">Run the profile and check a packet</h2>
+        <p>Fresh runs generate new X25519 private scalars, nonces, SPIs and a random 32-byte pre-shared key (PSK). The 16-byte input minimum only checks length. A human-chosen password of that length can still be predictable. The fixed button is an explicit evidence seam for published and project-owned vectors.</p>
       </div>
       <form id="controls" class="controls">
         <label>Requested packet mode
@@ -48,7 +48,7 @@ root.innerHTML = `
         <label class="check"><input id="echo" type="checkbox" checked disabled /> Responder echoes USE_TRANSPORT_MODE</label>
         <label class="check"><input id="fallback" type="checkbox" checked disabled /> Initiator accepts tunnel fallback</label>
         <div class="actions">
-          <button class="primary" type="submit">Run fresh negotiation</button>
+          <button class="primary" type="submit">Run fresh profile</button>
           <button id="fixed" class="secondary" type="button">Load fixed evidence</button>
         </div>
       </form>
@@ -179,7 +179,7 @@ function renderRun(run: LabRun): string {
     <section class="lesson-section" aria-labelledby="policy-title">
       ${sectionNumber("01", "Policy before cryptography")}
       <h2 id="policy-title">The SPD decides; the route does something else</h2>
-      <p>The ordered Security Policy Database returns its first match. Route lookup is shown beside it, but never changes the security disposition.</p>
+      <p>This outbound policy list uses the first matching rule. The lab omits inbound policy checking, policy caches and a Peer Authorization Database. Route lookup is shown beside it, but never changes the security disposition.</p>
       <div class="table-wrap" role="region" aria-label="Security policy decisions" tabindex="0"><table data-testid="spd-table"><thead><tr><th>Concrete flow</th><th>First match</th><th>SPD result</th><th>Separate route</th></tr></thead><tbody>
         ${run.policy.map((item) => `<tr><td><strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.flow)}</small></td><td>${escapeHtml(item.rule)}</td><td><span class="pill ${item.action.toLowerCase()}">${item.action}</span></td><td>${escapeHtml(item.route)}</td></tr>`).join("")}
       </tbody></table></div>
@@ -188,7 +188,8 @@ function renderRun(run: LabRun): string {
 
     <section class="lesson-section" aria-labelledby="ike-title">
       ${sectionNumber("02", "Four-message IKEv2")}
-      <h2 id="ike-title">Authenticate peers and establish the first Child SA</h2>
+      <h2 id="ike-title">Construct the transcript and check the identity proofs</h2>
+      <p>The lab constructs both sides in one process using shared in-memory inputs. The hashes identify the exact encoded messages. The peers use one fixed suite and do not exchange or select competing proposals. Identity and AUTH verification checks each protected identity and its PSK proof. The lab builds the Child SA and traffic selectors locally, without independently parsing those received payloads.</p>
       <div class="message-flow" data-testid="ike-flow">
         ${messageCard("1", "IKE_SA_INIT request", handshake.ikeSaInitRequest.length, run.initRequestHash, "SA → KE(31) → Nonce")}
         ${messageCard("2", "IKE_SA_INIT response", handshake.ikeSaInitResponse.length, run.initResponseHash, "SA → KE(31) → Nonce")}
